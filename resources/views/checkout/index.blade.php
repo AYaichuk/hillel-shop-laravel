@@ -64,11 +64,6 @@
                             <input id="address" type="text" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ old('address') }}">
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-md-10 text-right">
-                            <input type="submit" class="btn btn-info" value="Create Order">
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="col-md-4">

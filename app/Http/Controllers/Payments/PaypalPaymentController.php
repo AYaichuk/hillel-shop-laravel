@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Payments;
 
+use App\Events\OrderCreatedEvent;
+use App\Helpers\TransactionDataAdapter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
+use App\Models\Order;
+use App\Models\OrderStatus;
+use App\Notifications\OrderCreatedNotification;
 use App\Repositories\Contracts\OrderRepositoryContract;
 use App\Repositories\OrderRepository;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -41,13 +46,35 @@ class PaypalPaymentController extends Controller
             return response()->json($order);
         } catch (\Exception $exception) {
             DB::rollBack();
-            return response()->json($order);
+            logs()->warning($exception);
+            return response()->json(['error' => $exception->getMessage()]);
         }
     }
 
-    public function capture()
+    public function capture(string $orderId, OrderRepositoryContract $orderRepository)
     {
+        try {
+            DB::beginTransaction();
 
+            $result = $this->payPalClient->capturePaymentOrder($orderId);
+
+            $order = $orderRepository->setTransaction($orderId, new TransactionDataAdapter(
+                self::PAYMENT_SYSTEM,
+                auth()->id(),
+                $result['status']
+            ));
+            $result['orderId'] = $order->id;
+
+            OrderCreatedEvent::dispatch($order);
+
+            DB::commit();
+
+            return response()->json($result);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            logs()->warning($exception);
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
     protected function getClient()
