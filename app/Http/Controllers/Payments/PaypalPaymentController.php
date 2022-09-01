@@ -6,11 +6,7 @@ use App\Events\OrderCreatedEvent;
 use App\Helpers\TransactionDataAdapter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
-use App\Models\Order;
-use App\Models\OrderStatus;
-use App\Notifications\OrderCreatedNotification;
 use App\Repositories\Contracts\OrderRepositoryContract;
-use App\Repositories\OrderRepository;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Support\Facades\DB;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -57,7 +53,6 @@ class PaypalPaymentController extends Controller
             DB::beginTransaction();
 
             $result = $this->payPalClient->capturePaymentOrder($orderId);
-
             $order = $orderRepository->setTransaction($orderId, new TransactionDataAdapter(
                 self::PAYMENT_SYSTEM,
                 auth()->id(),
@@ -69,7 +64,8 @@ class PaypalPaymentController extends Controller
 
             DB::commit();
 
-            return response()->json($result);
+//            return response()->json($result);
+            return response()->json(['error' => "Some error here"], 422);
         } catch (\Exception $exception) {
             DB::rollBack();
             logs()->warning($exception);
