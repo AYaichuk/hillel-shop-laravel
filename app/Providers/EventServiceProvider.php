@@ -5,8 +5,10 @@ namespace App\Providers;
 use App\Events\OrderCreatedEvent;
 use App\Listeners\OrderCreatedListener;
 use App\Models\Image;
+use App\Models\Order;
 use App\Models\Product;
 use App\Observers\ImageObserver;
+use App\Observers\OrdersObserver;
 use App\Observers\ProductObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -31,7 +33,8 @@ class EventServiceProvider extends ServiceProvider
 
     protected $observers = [
         Image::class => [ImageObserver::class],
-        Product::class => [ProductObserver::class]
+        Product::class => [ProductObserver::class],
+        Order::class => [OrdersObserver::class]
     ];
 
     /**
