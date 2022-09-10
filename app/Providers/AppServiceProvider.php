@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Repositories\CommentsRepository;
+use App\Repositories\Contracts\CommentsRepositoryContract;
 use App\Repositories\Contracts\OrderRepositoryContract;
 use App\Repositories\Contracts\ProductRepositoryContract;
 use App\Repositories\OrderRepository;
@@ -29,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             InvoicesServiceContract::class,
             InvoicesService::class
+        );
+        $this->app->bind(
+            CommentsRepositoryContract::class,
+            CommentsRepository::class
         );
     }
 
